@@ -1,0 +1,72 @@
+@page
+@model BookingTracker.Pages.Account.ApiKeyModel
+@{
+    ViewData["Title"] = "API Key";
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+    <hr />
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Your API Key</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Use this API key to authenticate API requests. Include it in the <code>X-API-Key</code> header.</p>
+
+            <div class="mb-3">
+                <label class="form-label">API Key</label>
+                <div class="input-group">
+                    <input type="text" class="form-control font-monospace" id="apiKeyInput" value="@Model.CurrentApiKey" readonly />
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyApiKey()">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+            </div>
+
+            <form method="post" onsubmit="return confirm('Are you sure you want to reset your API key? This will invalidate the current key and any applications using it will stop working.');">
+                <button type="submit" class="btn btn-danger">Reset API Key</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">API Usage Example</h5>
+        </div>
+        <div class="card-body">
+            <p>Example of making an API request with your API key:</p>
+            <pre class="bg-light p-3 rounded"><code>curl -H "X-API-Key: @Model.CurrentApiKey" \
+     http://localhost:5000/api/venues</code></pre>
+
+            <p class="mt-3">Or using JavaScript:</p>
+            <pre class="bg-light p-3 rounded"><code>fetch('/api/venues', {
+    headers: {
+        'X-API-Key': '@Model.CurrentApiKey'
+    }
+})
+.then(response => response.json())
+.then(data => console.log(data));</code></pre>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            input.select();
+            document.execCommand('copy');
+            alert('API key copied to clipboard!');
+        }
+    </script>
+}

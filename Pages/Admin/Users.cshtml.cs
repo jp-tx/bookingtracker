@@ -3,16 +3,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using BookingTracker.Models;
 
 namespace BookingTracker.Pages.Admin
 {
     [Authorize(Roles = "Admin")]
     public class UsersModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<UsersModel> _logger;
 
-        public UsersModel(UserManager<IdentityUser> userManager, ILogger<UsersModel> logger)
+        public UsersModel(UserManager<ApplicationUser> userManager, ILogger<UsersModel> logger)
         {
             _userManager = userManager;
             _logger = logger;
@@ -61,11 +62,12 @@ namespace BookingTracker.Pages.Admin
                 return Page();
             }
 
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = NewUserEmail,
                 Email = NewUserEmail,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                ApiKey = Guid.NewGuid().ToString("N")
             };
 
             var result = await _userManager.CreateAsync(user, NewUserPassword);

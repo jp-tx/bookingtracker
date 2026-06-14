@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingTracker.Data;
 using BookingTracker.Models;
+using BookingTracker.Attributes;
 
 namespace BookingTracker.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[ApiKeyAuthorize]
 public class ViewsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
