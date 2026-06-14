@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  bookingtracker:
+    image: ghcr.io/jp-tx/bookingtracker:latest
+    container_name: bookingtracker
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/data/app.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
