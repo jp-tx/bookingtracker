@@ -1,3 +1,6 @@
+Probably dont use this, its ai slop i use internally to source data from openclaw, im not gonna maintain it and theres probably bugs everywhere
+
+
 # Booking Tracker
 
 A lightweight booking pipeline tracker for musicians to manage venue research, curation, and outreach.
