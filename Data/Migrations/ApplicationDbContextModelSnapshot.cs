@@ -310,7 +310,7 @@ namespace BookingTracker.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -333,7 +333,7 @@ namespace BookingTracker.Data.Migrations
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
@@ -357,7 +357,7 @@ namespace BookingTracker.Data.Migrations
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
@@ -372,7 +372,7 @@ namespace BookingTracker.Data.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
@@ -413,7 +413,7 @@ namespace BookingTracker.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.HasOne("BookingTracker.Models.ApplicationUser", null)
                         .WithMany()
@@ -422,7 +422,7 @@ namespace BookingTracker.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.HasOne("BookingTracker.Models.ApplicationUser", null)
                         .WithMany()
@@ -431,7 +431,7 @@ namespace BookingTracker.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
@@ -446,7 +446,7 @@ namespace BookingTracker.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BookingTracker.Models.ApplicationUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.HasOne("BookingTracker.Models.ApplicationUser", null)
                         .WithMany()
