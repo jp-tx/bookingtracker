@@ -13,6 +13,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Data Source=/data/app.db
+      - ADMIN_EMAIL=admin@bookingtracker.local
+      - ADMIN_PASSWORD=ChangeMe123!
+      - ALLOW_REGISTRATION=false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 30s

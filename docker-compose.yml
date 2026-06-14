@@ -15,4 +15,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=DataSource=/data/bookingtracker.db;Cache=Shared
       - DataDirectory=/data
+      - ADMIN_EMAIL=admin@bookingtracker.local
+      - ADMIN_PASSWORD=ChangeMe123!
+      - ALLOW_REGISTRATION=true
     restart: unless-stopped

@@ -35,6 +35,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-page="/Outreach/Index">Outreach</a>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Admin/Users">Admin</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
