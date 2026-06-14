@@ -1,0 +1,343 @@
+@page "{id:int}"
+@model BookingTracker.Pages.Venues.DetailsModel
+@{
+    ViewData["Title"] = "Venue Details";
+}
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="display-4" id="venueTitle">Venue Details</h1>
+        <p class="text-muted">Complete venue information and outreach history</p>
+    </div>
+
+    <div class="mb-4">
+        <a href="/Venues" class="btn btn-secondary">Back to List</a>
+        <a href="#" id="editBtn" class="btn btn-warning">Edit Venue</a>
+    </div>
+
+    <div id="venueDetails" class="loading">
+        Loading venue details...
+    </div>
+
+    <div class="mt-4" id="outreachSection" style="display: none;">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <button class="btn btn-primary btn-sm float-end" type="button" data-bs-toggle="collapse" data-bs-target="#logOutreachForm">
+                        + Log New Outreach
+                    </button>
+                    Log Outreach
+                </h5>
+            </div>
+            <div class="collapse" id="logOutreachForm">
+                <div class="card-body">
+                    <form id="outreachForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="outreachDate" class="form-label">Date *</label>
+                                    <input type="datetime-local" class="form-control" id="outreachDate" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="channel" class="form-label">Channel *</label>
+                                    <select class="form-select" id="channel" required>
+                                        <option value="0">Email</option>
+                                        <option value="1">Instagram</option>
+                                        <option value="2">Facebook</option>
+                                        <option value="3">Phone</option>
+                                        <option value="4">In-Person</option>
+                                        <option value="5">Form</option>
+                                        <option value="6">Referral</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="direction" class="form-label">Direction *</label>
+                                    <select class="form-select" id="direction" required>
+                                        <option value="0">Outbound (I contacted them)</option>
+                                        <option value="1">Inbound (They contacted me)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="result" class="form-label">Result</label>
+                                    <select class="form-select" id="result">
+                                        <option value="">Pending/No Result Yet</option>
+                                        <option value="0">No Reply</option>
+                                        <option value="1">Interested</option>
+                                        <option value="2">Passed</option>
+                                        <option value="3">Booked</option>
+                                        <option value="4">Needs Follow-up</option>
+                                        <option value="5">Bad Fit</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="followUpDate" class="form-label">Follow-up Date</label>
+                                    <input type="datetime-local" class="form-control" id="followUpDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="messageDraftLink" class="form-label">Message/Draft Link</label>
+                                    <input type="url" class="form-control" id="messageDraftLink" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="summary" class="form-label">Summary</label>
+                            <textarea class="form-control" id="summary" rows="3" placeholder="Brief description of the communication..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="senderContact" class="form-label">Contact Person (if different from booking contact)</label>
+                            <input type="text" class="form-control" id="senderContact" placeholder="Name and/or email">
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Outreach Log</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#logOutreachForm">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Outreach History</h5>
+            </div>
+            <div class="card-body">
+                <div id="outreachHistory" class="loading">
+                    Loading outreach history...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const venueId = @Model.Id;
+
+        async function loadVenueDetails() {
+            try {
+                const response = await fetch(`/api/venues/${venueId}`);
+                if (!response.ok) {
+                    document.getElementById('venueDetails').innerHTML = '<div class="alert alert-danger">Venue not found.</div>';
+                    return;
+                }
+
+                const venue = await response.json();
+                document.getElementById('editBtn').href = `/Venues/Edit/${venue.id}`;
+                document.getElementById('venueTitle').textContent = venue.name;
+
+                let html = '<div class="row mb-4">';
+
+                // Status Card
+                html += '<div class="col-md-4">';
+                html += '<div class="card">';
+                html += '<div class="card-body text-center">';
+                html += '<h6 class="text-muted mb-2">Current Status</h6>';
+                html += `<h3><span class="badge bg-info">${getStatusName(venue.status)}</span></h3>`;
+                html += '</div></div></div>';
+
+                // Priority Card
+                html += '<div class="col-md-4">';
+                html += '<div class="card">';
+                html += '<div class="card-body text-center">';
+                html += '<h6 class="text-muted mb-2">Priority</h6>';
+                html += `<h3><span class="badge bg-${getPriorityColor(venue.priority)}">${getPriorityName(venue.priority)}</span></h3>`;
+                html += '</div></div></div>';
+
+                // Fit Score Card
+                html += '<div class="col-md-4">';
+                html += '<div class="card">';
+                html += '<div class="card-body text-center">';
+                html += '<h6 class="text-muted mb-2">Fit Score</h6>';
+                const fitBadgeColor = venue.fitScore >= 4 ? 'success' : venue.fitScore >= 3 ? 'warning' : 'secondary';
+                html += `<h3><span class="badge bg-${fitBadgeColor}">${venue.fitScore || 'N/A'}/5</span></h3>`;
+                html += '</div></div></div>';
+                html += '</div>';
+
+                // Basic Information Card
+                html += '<div class="row mb-4">';
+                html += '<div class="col-md-6">';
+                html += '<div class="card">';
+                html += '<div class="card-header"><h5 class="mb-0">Basic Information</h5></div>';
+                html += '<div class="card-body">';
+                html += `<p><strong>Name:</strong> ${venue.name}</p>`;
+                html += `<p><strong>City:</strong> ${venue.city || 'N/A'}</p>`;
+                html += `<p><strong>State:</strong> ${venue.state || 'N/A'}</p>`;
+                html += `<p><strong>Neighborhood:</strong> ${venue.neighborhood || 'N/A'}</p>`;
+                html += `<p><strong>Type:</strong> <span class="badge bg-secondary">${getVenueTypeName(venue.venueType)}</span></p>`;
+                html += '</div></div></div>';
+
+                // Contact Information Card
+                html += '<div class="col-md-6">';
+                html += '<div class="card">';
+                html += '<div class="card-header"><h5 class="mb-0">Contact Information</h5></div>';
+                html += '<div class="card-body">';
+                html += `<p><strong>Contact Name:</strong> ${venue.bookingContactName || 'N/A'}</p>`;
+                html += `<p><strong>Email:</strong> ${venue.bookingContactEmail ? `<a href="mailto:${venue.bookingContactEmail}">${venue.bookingContactEmail}</a>` : 'N/A'}</p>`;
+                html += `<p><strong>Phone:</strong> ${venue.bookingContactPhone ? `<a href="tel:${venue.bookingContactPhone}">${venue.bookingContactPhone}</a>` : 'N/A'}</p>`;
+                html += `<p><strong>Website:</strong> ${venue.website ? `<a href="${venue.website}" target="_blank">${venue.website}</a>` : 'N/A'}</p>`;
+                const instagramHandle = venue.instagram && venue.instagram.charAt(0) === String.fromCharCode(64) ? venue.instagram.substring(1) : venue.instagram;
+                html += `<p><strong>Instagram:</strong> ${venue.instagram ? `<a href="https://instagram.com/${instagramHandle}" target="_blank">${venue.instagram}</a>` : 'N/A'}</p>`;
+                html += '</div></div></div>';
+                html += '</div>';
+
+                // Venue Details Card
+                html += '<div class="row mb-4">';
+                html += '<div class="col-md-6">';
+                html += '<div class="card">';
+                html += '<div class="card-header"><h5 class="mb-0">Venue Details</h5></div>';
+                html += '<div class="card-body">';
+                html += `<p><strong>Capacity:</strong> ${venue.capacityRoomSize || 'N/A'}</p>`;
+                html += `<p><strong>Music Format:</strong> ${venue.musicFormatFit || 'N/A'}</p>`;
+                html += `<p><strong>Fit Score:</strong> ${venue.fitScore ? `${venue.fitScore}/5` : 'N/A'}</p>`;
+                html += '</div></div></div>';
+
+                // Research Info Card
+                html += '<div class="col-md-6">';
+                html += '<div class="card">';
+                html += '<div class="card-header"><h5 class="mb-0">Research Info</h5></div>';
+                html += '<div class="card-body">';
+                html += `<p><strong>Source:</strong> ${getSourceName(venue.source)}</p>`;
+                html += `<p><strong>Research Confidence:</strong> ${getConfidenceName(venue.researchConfidence)}</p>`;
+                html += `<p><strong>Added:</strong> ${new Date(venue.createdAt).toLocaleDateString()}</p>`;
+                html += `<p><strong>Last Updated:</strong> ${new Date(venue.updatedAt).toLocaleDateString()}</p>`;
+                html += '</div></div></div>';
+                html += '</div>';
+
+                // Notes Card (if present)
+                if (venue.notes) {
+                    html += '<div class="row mb-4">';
+                    html += '<div class="col-md-12">';
+                    html += '<div class="card">';
+                    html += '<div class="card-header"><h5 class="mb-0">Notes</h5></div>';
+                    html += '<div class="card-body">';
+                    html += `<p>${venue.notes}</p>`;
+                    html += '</div></div></div>';
+                    html += '</div>';
+                }
+
+                document.getElementById('venueDetails').innerHTML = html;
+                document.getElementById('outreachSection').style.display = 'block';
+
+                // Load outreach history
+                if (venue.outreachLogs && venue.outreachLogs.length > 0) {
+                    let outreachHtml = '<div class="table-responsive">';
+                    outreachHtml += '<table class="table table-hover">';
+                    outreachHtml += '<thead><tr>';
+                    outreachHtml += '<th>Date</th><th>Channel</th><th>Direction</th><th>Summary</th><th>Result</th></tr></thead><tbody>';
+
+                    venue.outreachLogs.forEach(log => {
+                        const date = new Date(log.date).toLocaleDateString();
+                        const directionBadge = log.direction === 0 ? 'bg-primary' : 'bg-success';
+                        const directionText = log.direction === 0 ? 'Outbound' : 'Inbound';
+                        outreachHtml += `<tr>
+                            <td>${date}</td>
+                            <td><span class="badge bg-info">${getChannelName(log.channel)}</span></td>
+                            <td><span class="badge ${directionBadge}">${directionText}</span></td>
+                            <td>${log.summary || 'N/A'}</td>
+                            <td>${log.result !== null ? `<span class="badge bg-secondary">${getResultName(log.result)}</span>` : 'N/A'}</td>
+                        </tr>`;
+                    });
+                    outreachHtml += '</tbody></table></div>';
+                    document.getElementById('outreachHistory').innerHTML = outreachHtml;
+                } else {
+                    document.getElementById('outreachHistory').innerHTML = '<div class="empty-state"><p class="text-muted">No outreach history yet.</p></div>';
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('venueDetails').innerHTML = '<div class="alert alert-danger">Error loading venue details.</div>';
+            }
+        }
+
+        function getVenueTypeName(type) {
+            const types = ['Bar', 'Honky Tonk', 'Restaurant', 'Brewery', 'Private Event', 'Festival', 'Corporate', 'Songwriter Round', 'Other'];
+            return types[type] || 'Unknown';
+        }
+
+        function getStatusName(status) {
+            const statuses = ['Research Candidate', 'Needs User Review', 'Approved Target', 'Draft Needed', 'Ready to Send',
+                            'Contacted', 'Follow-up Due', 'In Conversation', 'Booked', 'Not Now', 'Bad Fit', 'Dead/No Response', 'Existing Relationship'];
+            return statuses[status] || 'Unknown';
+        }
+
+        function getPriorityName(priority) {
+            const priorities = ['Low', 'Medium', 'High'];
+            return priorities[priority] || 'Unknown';
+        }
+
+        function getPriorityColor(priority) {
+            return priority === 2 ? 'danger' : priority === 1 ? 'warning' : 'secondary';
+        }
+
+        function getSourceName(source) {
+            const sources = ['User Research', 'User Referral', 'Venue Discovery', 'Previous Gig', 'Inbound', 'Other'];
+            return sources[source] || 'Unknown';
+        }
+
+        function getConfidenceName(confidence) {
+            const confidences = ['Low', 'Medium', 'High'];
+            return confidences[confidence] || 'Unknown';
+        }
+
+        function getChannelName(channel) {
+            const channels = ['Email', 'Instagram', 'Facebook', 'Phone', 'In-Person', 'Form', 'Referral'];
+            return channels[channel] || 'Unknown';
+        }
+
+        function getResultName(result) {
+            const results = ['No Reply', 'Interested', 'Passed', 'Booked', 'Needs Follow-up', 'Bad Fit'];
+            return results[result] || 'Unknown';
+        }
+
+        // Handle outreach form submission
+        document.getElementById('outreachForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const outreachLog = {
+                venueId: venueId,
+                date: document.getElementById('outreachDate').value,
+                channel: parseInt(document.getElementById('channel').value),
+                direction: parseInt(document.getElementById('direction').value),
+                summary: document.getElementById('summary').value || null,
+                result: document.getElementById('result').value ? parseInt(document.getElementById('result').value) : null,
+                followUpDate: document.getElementById('followUpDate').value || null,
+                messageDraftLink: document.getElementById('messageDraftLink').value || null,
+                senderContact: document.getElementById('senderContact').value || null
+            };
+
+            try {
+                const response = await fetch('/api/outreach', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(outreachLog)
+                });
+
+                if (response.ok) {
+                    alert('Outreach logged successfully!');
+
+                    // Reset form
+                    document.getElementById('outreachForm').reset();
+
+                    // Close the form
+                    const collapseElement = document.getElementById('logOutreachForm');
+                    const bsCollapse = new bootstrap.Collapse(collapseElement, { toggle: false });
+                    bsCollapse.hide();
+
+                    // Reload venue details to show new outreach log
+                    loadVenueDetails();
+                } else {
+                    const error = await response.text();
+                    alert('Error logging outreach: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error logging outreach');
+            }
+        });
+
+        // Set default date/time to now
+        document.getElementById('outreachDate').value = new Date().toISOString().slice(0, 16);
+
+        loadVenueDetails();
+    </script>
+}

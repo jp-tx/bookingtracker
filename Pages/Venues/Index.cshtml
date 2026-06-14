@@ -1,0 +1,167 @@
+@page
+@model BookingTracker.Pages.Venues.IndexModel
+@{
+    ViewData["Title"] = "Venues";
+}
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="display-4">Venues</h1>
+        <p class="text-muted">Manage all venue contacts and tracking</p>
+    </div>
+
+    <div class="action-buttons mb-4">
+        <div class="row">
+            <div class="col-md-8">
+                <input type="text" id="searchBox" class="form-control" placeholder="Search venues by name, city, or type...">
+            </div>
+            <div class="col-md-2">
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="0">Research</option>
+                    <option value="1">Needs Review</option>
+                    <option value="2">Approved</option>
+                    <option value="5">Contacted</option>
+                    <option value="8">Booked</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <a href="/Venues/Create" class="btn btn-primary w-100">Add Venue</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body p-2">
+                    <small class="text-muted">
+                        Showing <span id="venueCount">0</span> venues
+                        <span class="float-end">
+                            <a href="/Venues/Curation" class="btn btn-sm btn-warning">Curation Workflow</a>
+                        </span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="venuesContainer" class="loading">
+        Loading venues
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allVenues = [];
+
+        async function loadVenues() {
+            try {
+                const response = await fetch('/api/venues');
+                allVenues = await response.json();
+                displayVenues(allVenues);
+
+                // Add search listener
+                document.getElementById('searchBox').addEventListener('input', filterVenues);
+                document.getElementById('statusFilter').addEventListener('change', filterVenues);
+            } catch (error) {
+                console.error('Error loading venues:', error);
+                document.getElementById('venuesContainer').innerHTML =
+                    '<div class="alert alert-danger">Error loading venues. Please refresh the page.</div>';
+            }
+        }
+
+        function filterVenues() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = allVenues;
+
+            if (searchTerm) {
+                filtered = filtered.filter(v =>
+                    v.name.toLowerCase().includes(searchTerm) ||
+                    (v.city && v.city.toLowerCase().includes(searchTerm)) ||
+                    (v.state && v.state.toLowerCase().includes(searchTerm)) ||
+                    getVenueTypeName(v.venueType).toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (statusFilter) {
+                filtered = filtered.filter(v => v.status == statusFilter);
+            }
+
+            displayVenues(filtered);
+        }
+
+        function displayVenues(venues) {
+            const container = document.getElementById('venuesContainer');
+            document.getElementById('venueCount').textContent = venues.length;
+
+            if (venues.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No venues found.</p>
+                        <a href="/Venues/Create" class="btn btn-primary">Add Your First Venue</a>
+                    </div>`;
+                return;
+            }
+
+            let html = '<div class="table-responsive"><table class="table table-striped table-hover">';
+            html += '<thead><tr>';
+            html += '<th>Venue</th><th>Location</th><th>Type</th><th>Status</th><th>Priority</th><th>Fit</th><th>Actions</th>';
+            html += '</tr></thead><tbody>';
+
+            venues.forEach(venue => {
+                const location = [venue.city, venue.state].filter(Boolean).join(', ') || 'N/A';
+                html += `<tr>
+                    <td>
+                        <strong>${venue.name}</strong>
+                        ${venue.neighborhood ? `<br><small class="text-muted">${venue.neighborhood}</small>` : ''}
+                    </td>
+                    <td>${location}</td>
+                    <td><span class="badge bg-secondary">${getVenueTypeName(venue.venueType)}</span></td>
+                    <td><span class="badge bg-info">${getStatusName(venue.status)}</span></td>
+                    <td><span class="badge bg-${getPriorityColor(venue.priority)}">${getPriorityName(venue.priority)}</span></td>
+                    <td>
+                        ${venue.fitScore ?
+                            `<span class="badge ${venue.fitScore >= 4 ? 'bg-success' : venue.fitScore >= 3 ? 'bg-warning' : 'bg-secondary'}">${venue.fitScore}/5</span>`
+                            : '<span class="text-muted">-</span>'}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="/Venues/Details/${venue.id}" class="btn btn-info" title="View Details">View</a>
+                            <a href="/Venues/Edit/${venue.id}" class="btn btn-warning" title="Edit">Edit</a>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        function getVenueTypeName(type) {
+            const types = ['Bar', 'Honky Tonk', 'Restaurant', 'Brewery', 'Private Event',
+                          'Festival', 'Corporate', 'Songwriter Round', 'Other'];
+            return types[type] || 'Unknown';
+        }
+
+        function getStatusName(status) {
+            const statuses = ['Research', 'Review', 'Approved', 'Draft', 'Ready',
+                            'Contacted', 'Follow-up', 'In Talk', 'Booked', 'Not Now',
+                            'Bad Fit', 'No Response', 'Existing'];
+            return statuses[status] || 'Unknown';
+        }
+
+        function getPriorityName(priority) {
+            return ['Low', 'Medium', 'High'][priority] || 'Unknown';
+        }
+
+        function getPriorityColor(priority) {
+            return priority === 2 ? 'danger' : priority === 1 ? 'warning' : 'secondary';
+        }
+
+        loadVenues();
+    </script>
+}

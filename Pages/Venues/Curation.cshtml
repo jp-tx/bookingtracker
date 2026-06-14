@@ -1,0 +1,176 @@
+@page
+@model BookingTracker.Pages.Venues.CurationModel
+@{
+    ViewData["Title"] = "Curation Workflow";
+}
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="display-4">Curation Workflow</h1>
+        <p class="text-muted">Review and approve venues for your booking pipeline</p>
+    </div>
+
+    <div class="mb-4">
+        <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+        <a href="/Venues" class="btn btn-info">All Venues</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <strong>Review Process:</strong> Approve venues worth pursuing, reject obvious bad fits, and adjust priorities.
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="text-muted">Pending: <span id="venueCount" class="badge bg-warning">0</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="curationContainer" class="loading">
+        Loading venues needing review...
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function loadVenuesForReview() {
+            try {
+                const response = await fetch('/api/views/new-venues-needing-review');
+                const venues = await response.json();
+
+                const container = document.getElementById('curationContainer');
+                document.getElementById('venueCount').textContent = venues.length;
+
+                if (venues.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>No venues awaiting review!</p><a href="/Venues/Create" class="btn btn-primary">Add New Venue</a></div>';
+                    return;
+                }
+
+                let html = '<div class="row">';
+
+                venues.forEach(venue => {
+                    const location = [venue.city, venue.state].filter(Boolean).join(', ') || 'Location not specified';
+                    const fitBadgeColor = venue.fitScore >= 4 ? 'success' : venue.fitScore >= 3 ? 'warning' : 'secondary';
+
+                    html += '<div class="col-md-6 mb-4">';
+                    html += '<div class="card h-100">';
+                    html += '<div class="card-body">';
+                    html += `<h5 class="card-title">${venue.name}</h5>`;
+                    html += `<p class="card-text text-muted"><small>${location}</small></p>`;
+
+                    html += '<div class="mb-3">';
+                    html += `<span class="badge bg-secondary me-2">${getVenueTypeName(venue.venueType)}</span>`;
+                    html += `<span class="badge bg-${getPriorityColor(venue.priority)} me-2">${getPriorityName(venue.priority)} Priority</span>`;
+                    if (venue.fitScore) {
+                        html += `<span class="badge bg-${fitBadgeColor}">Fit: ${venue.fitScore}/5</span>`;
+                    }
+                    html += '</div>';
+
+                    if (venue.notes) {
+                        html += `<p class="card-text"><small>${venue.notes.substring(0, 150)}${venue.notes.length > 150 ? '...' : ''}</small></p>`;
+                    }
+
+                    if (venue.bookingContactName || venue.bookingContactEmail) {
+                        html += '<hr>';
+                        html += `<p class="mb-1"><small><strong>Contact:</strong> ${venue.bookingContactName || 'N/A'}</small></p>`;
+                        if (venue.bookingContactEmail) {
+                            html += `<p class="mb-0"><small>${venue.bookingContactEmail}</small></p>`;
+                        }
+                    }
+
+                    html += '</div>';
+                    html += '<div class="card-footer bg-transparent">';
+                    html += '<div class="d-grid gap-2">';
+                    html += `<button class="btn btn-success" onclick="approveVenue(${venue.id})">Approve for Outreach</button>`;
+                    html += `<button class="btn btn-danger" onclick="rejectVenue(${venue.id})">Mark as Bad Fit</button>`;
+                    html += `<a href="/Venues/Details/${venue.id}" class="btn btn-sm btn-outline-info">View Full Details</a>`;
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading venues:', error);
+                document.getElementById('curationContainer').innerHTML = '<div class="alert alert-danger">Error loading venues.</div>';
+            }
+        }
+
+        function getVenueTypeName(type) {
+            const types = ['Bar', 'Honky Tonk', 'Restaurant', 'Brewery', 'Private Event', 'Festival', 'Corporate', 'Songwriter Round', 'Other'];
+            return types[type] || 'Unknown';
+        }
+
+        function getPriorityName(priority) {
+            const priorities = ['Low', 'Medium', 'High'];
+            return priorities[priority] || 'Unknown';
+        }
+
+        function getPriorityColor(priority) {
+            switch(priority) {
+                case 'High': case 2: return 'danger';
+                case 'Medium': case 1: return 'warning';
+                case 'Low': case 0: return 'secondary';
+                default: return 'secondary';
+            }
+        }
+
+        async function approveVenue(id) {
+            try {
+                const venueResponse = await fetch(`/api/venues/${id}`);
+                const venue = await venueResponse.json();
+
+                venue.status = 2; // ApprovedTarget
+                venue.updatedAt = new Date().toISOString();
+
+                const response = await fetch(`/api/venues/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    alert('Venue approved!');
+                    loadVenuesForReview();
+                } else {
+                    alert('Error approving venue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error approving venue');
+            }
+        }
+
+        async function rejectVenue(id) {
+            try {
+                const venueResponse = await fetch(`/api/venues/${id}`);
+                const venue = await venueResponse.json();
+
+                venue.status = 10; // BadFit
+                venue.updatedAt = new Date().toISOString();
+
+                const response = await fetch(`/api/venues/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    alert('Venue marked as bad fit');
+                    loadVenuesForReview();
+                } else {
+                    alert('Error rejecting venue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error rejecting venue');
+            }
+        }
+
+        loadVenuesForReview();
+    </script>
+}

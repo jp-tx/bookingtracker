@@ -1,0 +1,36 @@
+=== Booking Tracker API Test Suite ===
+Test Date: Sun, Jun 14, 2026  4:22:51 PM
+
+
+=== HTML Endpoints ===
+✓ PASS: Dashboard page (HTTP 200)
+✓ PASS: Venues list page (HTTP 200)
+✓ PASS: Register page (HTTP 200)
+✓ PASS: Login page (HTTP 200)
+
+=== API Endpoints ===
+✓ PASS: Get all venues (empty) (HTTP 200)
+✓ PASS: Create venue (HTTP 201)
+✓ PASS: Get venue by ID (HTTP 200)
+✓ PASS: Update venue (HTTP 204)
+✓ PASS: Get all venues (with data) (HTTP 200)
+✓ PASS: Get all outreach logs (empty) (HTTP 200)
+✓ PASS: Create outreach log (HTTP 201)
+✓ PASS: Get outreach log by ID (HTTP 200)
+✓ PASS: New venues needing review (HTTP 200)
+✓ PASS: Approved targets (HTTP 200)
+✓ PASS: Follow-ups due this week (HTTP 200)
+✓ PASS: High priority Nashville (HTTP 200)
+✓ PASS: Out of town targets (HTTP 200)
+✓ PASS: No response (HTTP 200)
+✓ PASS: Booked venues (HTTP 200)
+✓ PASS: Strong rebook candidates (HTTP 200)
+✓ PASS: Bad fit archive (HTTP 200)
+✓ PASS: Reminders due (HTTP 200)
+✓ PASS: Overdue reminders (HTTP 200)
+✓ PASS: Delete test venue (HTTP 204)
+=== Test Summary ===
+Total Passed: 24
+Total Failed: 0
+
+[0;32mAll tests passed![0m

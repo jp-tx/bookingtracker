@@ -1,0 +1,227 @@
+@page
+@model BookingTracker.Pages.Venues.CreateModel
+@{
+    ViewData["Title"] = "Create Venue";
+}
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="display-4">Add New Venue</h1>
+        <p class="text-muted">Create a new venue in your booking pipeline</p>
+    </div>
+
+    <div class="mb-3">
+        <a href="/Venues" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form id="venueForm">
+                <div class="form-section">
+                    <h5 class="form-section-title">Basic Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Venue Name *</label>
+                                <input type="text" class="form-control" id="name" required placeholder="e.g., The Blue Note">
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" placeholder="e.g., Nashville">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="state" class="form-label">State</label>
+                                <input type="text" class="form-control" id="state" placeholder="e.g., TN">
+                            </div>
+                            <div class="mb-3">
+                                <label for="neighborhood" class="form-label">Neighborhood/Area</label>
+                                <input type="text" class="form-control" id="neighborhood" placeholder="e.g., East Nashville">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="venueType" class="form-label">Venue Type</label>
+                                <select class="form-select" id="venueType">
+                                    <option value="0">Bar</option>
+                                    <option value="1">Honky Tonk</option>
+                                    <option value="2">Restaurant</option>
+                                    <option value="3">Brewery</option>
+                                    <option value="4">Private Event</option>
+                                    <option value="5">Festival</option>
+                                    <option value="6">Corporate</option>
+                                    <option value="7">Songwriter Round</option>
+                                    <option value="8">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5 class="form-section-title">Contact Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bookingContactName" class="form-label">Contact Name</label>
+                                <input type="text" class="form-control" id="bookingContactName" placeholder="e.g., Jane Smith">
+                            </div>
+                            <div class="mb-3">
+                                <label for="bookingContactEmail" class="form-label">Contact Email</label>
+                                <input type="email" class="form-control" id="bookingContactEmail" placeholder="e.g., booking@venue.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="bookingContactPhone" class="form-label">Contact Phone</label>
+                                <input type="tel" class="form-control" id="bookingContactPhone" placeholder="e.g., (615) 555-1234">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="website" class="form-label">Website</label>
+                                <input type="url" class="form-control" id="website" placeholder="https://example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="instagram" class="form-label">Instagram</label>
+                                <input type="text" class="form-control" id="instagram" placeholder="@@venuename">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5 class="form-section-title">Venue Details</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="capacityRoomSize" class="form-label">Capacity/Room Size</label>
+                                <input type="text" class="form-control" id="capacityRoomSize" placeholder="e.g., 50-100 people">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="musicFormatFit" class="form-label">Music Format Fit</label>
+                                <input type="text" class="form-control" id="musicFormatFit" placeholder="e.g., solo acoustic, piano">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="fitScore" class="form-label">Fit Score (1-5)</label>
+                                <input type="number" class="form-control" id="fitScore" min="1" max="5" placeholder="1-5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5 class="form-section-title">Research & Priority</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority">
+                                    <option value="0">Low</option>
+                                    <option value="1" selected>Medium</option>
+                                    <option value="2">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="source" class="form-label">Source</label>
+                                <select class="form-select" id="source">
+                                    <option value="0">User Research</option>
+                                    <option value="1">User Referral</option>
+                                    <option value="2">Venue Discovery</option>
+                                    <option value="3">Previous Gig</option>
+                                    <option value="4">Inbound</option>
+                                    <option value="5">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="researchConfidence" class="form-label">Research Confidence</label>
+                                <select class="form-select" id="researchConfidence">
+                                    <option value="0">Low</option>
+                                    <option value="1" selected>Medium</option>
+                                    <option value="2">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status">
+                                    <option value="0" selected>Research Candidate</option>
+                                    <option value="1">Needs User Review</option>
+                                    <option value="2">Approved Target</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5 class="form-section-title">Notes</h5>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="notes" rows="4" placeholder="Add any additional notes, observations, or research findings..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Create Venue</button>
+                    <a href="/Venues" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('venueForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const venue = {
+                name: document.getElementById('name').value,
+                city: document.getElementById('city').value || null,
+                state: document.getElementById('state').value || null,
+                neighborhood: document.getElementById('neighborhood').value || null,
+                venueType: parseInt(document.getElementById('venueType').value),
+                bookingContactName: document.getElementById('bookingContactName').value || null,
+                bookingContactEmail: document.getElementById('bookingContactEmail').value || null,
+                bookingContactPhone: document.getElementById('bookingContactPhone').value || null,
+                website: document.getElementById('website').value || null,
+                instagram: document.getElementById('instagram').value || null,
+                capacityRoomSize: document.getElementById('capacityRoomSize').value || null,
+                musicFormatFit: document.getElementById('musicFormatFit').value || null,
+                fitScore: document.getElementById('fitScore').value ? parseInt(document.getElementById('fitScore').value) : null,
+                priority: parseInt(document.getElementById('priority').value),
+                source: parseInt(document.getElementById('source').value),
+                researchConfidence: parseInt(document.getElementById('researchConfidence').value),
+                status: parseInt(document.getElementById('status').value),
+                notes: document.getElementById('notes').value || null
+            };
+
+            try {
+                const response = await fetch('/api/venues', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    alert('Venue created successfully!');
+                    window.location.href = '/Venues';
+                } else {
+                    const error = await response.text();
+                    alert('Error creating venue: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating venue');
+            }
+        });
+    </script>
+}

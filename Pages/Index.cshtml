@@ -1,0 +1,212 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="display-4">Dashboard</h1>
+        <p class="text-muted">Manage your booking pipeline and venue outreach</p>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-number" id="totalVenues">-</div>
+                <div class="stats-label">Total Venues</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card" style="border-left-color: var(--accent-warning);">
+                <div class="stats-number" id="needsReview" style="color: var(--accent-warning);">-</div>
+                <div class="stats-label">Needs Review</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card" style="border-left-color: var(--accent-success);">
+                <div class="stats-number" id="approved" style="color: var(--accent-success);">-</div>
+                <div class="stats-label">Approved</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card" style="border-left-color: var(--accent-info);">
+                <div class="stats-number" id="booked" style="color: var(--accent-info);">-</div>
+                <div class="stats-label">Booked</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="/Venues/Create" class="btn btn-primary btn-lg w-100">
+                                Add New Venue
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="/Venues/Curation" class="btn btn-warning btn-lg w-100">
+                                Review Venues
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="/Venues" class="btn btn-info btn-lg w-100">
+                                View All Venues
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Venues</h5>
+                </div>
+                <div class="card-body">
+                    <div id="recentVenues" class="loading">Loading recent venues</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Follow-ups Due</h5>
+                </div>
+                <div class="card-body">
+                    <div id="followupsDue" class="loading">Loading follow-ups</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Reference (Collapsible) -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <a data-bs-toggle="collapse" href="#apiDocs" role="button" aria-expanded="false" style="text-decoration: none; color: inherit;">
+                            API Documentation <small class="text-muted">(click to expand)</small>
+                        </a>
+                    </h5>
+                </div>
+                <div class="collapse" id="apiDocs">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Venue Endpoints</h6>
+                                <ul class="small">
+                                    <li>GET /api/venues</li>
+                                    <li>GET /api/venues/{id}</li>
+                                    <li>POST /api/venues</li>
+                                    <li>PUT /api/venues/{id}</li>
+                                    <li>DELETE /api/venues/{id}</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>View Endpoints</h6>
+                                <ul class="small">
+                                    <li>GET /api/views/new-venues-needing-review</li>
+                                    <li>GET /api/views/approved-targets</li>
+                                    <li>GET /api/views/followups-due-this-week</li>
+                                    <li>GET /api/views/high-priority-nashville</li>
+                                    <li>GET /api/views/booked-venues</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Reminder Endpoints</h6>
+                                <ul class="small">
+                                    <li>GET /api/reminders/due</li>
+                                    <li>GET /api/reminders/overdue</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function loadDashboardData() {
+            try {
+                // Load stats
+                const venuesResponse = await fetch('/api/venues');
+                const venues = await venuesResponse.json();
+
+                document.getElementById('totalVenues').textContent = venues.length;
+
+                const needsReviewCount = venues.filter(v => v.status === 0 || v.status === 1).length;
+                document.getElementById('needsReview').textContent = needsReviewCount;
+
+                const approvedCount = venues.filter(v => v.status === 2 || v.status === 3 || v.status === 4).length;
+                document.getElementById('approved').textContent = approvedCount;
+
+                const bookedCount = venues.filter(v => v.status === 8).length;
+                document.getElementById('booked').textContent = bookedCount;
+
+                // Load recent venues
+                const recentVenues = venues.slice(0, 5);
+                if (recentVenues.length === 0) {
+                    document.getElementById('recentVenues').innerHTML = '<div class="empty-state"><p class="text-muted">No venues yet. <a href="/Venues/Create">Add your first venue</a></p></div>';
+                } else {
+                    let html = '<ul class="list-group list-group-flush">';
+                    recentVenues.forEach(v => {
+                        html += `<li class="list-group-item">
+                            <a href="/Venues/Details/${v.id}">${v.name}</a>
+                            <span class="badge bg-info float-end">${getStatusName(v.status)}</span>
+                        </li>`;
+                    });
+                    html += '</ul>';
+                    document.getElementById('recentVenues').innerHTML = html;
+                }
+
+                // Load follow-ups
+                const followupsResponse = await fetch('/api/views/followups-due-this-week');
+                const followups = await followupsResponse.json();
+
+                if (followups.length === 0) {
+                    document.getElementById('followupsDue').innerHTML = '<p class="text-muted">No follow-ups due this week</p>';
+                } else {
+                    let html = '<ul class="list-group list-group-flush">';
+                    followups.forEach(v => {
+                        const date = v.nextFollowUpDate ? new Date(v.nextFollowUpDate).toLocaleDateString() : 'TBD';
+                        html += `<li class="list-group-item">
+                            <a href="/Venues/Details/${v.id}">${v.name}</a>
+                            <small class="text-muted float-end">${date}</small>
+                        </li>`;
+                    });
+                    html += '</ul>';
+                    document.getElementById('followupsDue').innerHTML = html;
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function getStatusName(status) {
+            const statuses = ['Research', 'Review', 'Approved', 'Draft', 'Ready',
+                            'Contacted', 'Follow-up', 'In Talk', 'Booked', 'Not Now', 'Bad Fit', 'No Response', 'Existing'];
+            return statuses[status] || 'Unknown';
+        }
+
+        loadDashboardData();
+    </script>
+}
+

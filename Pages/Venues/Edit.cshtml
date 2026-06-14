@@ -1,0 +1,294 @@
+@page "{id:int}"
+@model BookingTracker.Pages.Venues.EditModel
+@{
+    ViewData["Title"] = "Edit Venue";
+}
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="display-4">Edit Venue</h1>
+        <p class="text-muted">Update venue information and status</p>
+    </div>
+
+    <div class="mb-3">
+        <a href="/Venues" class="btn btn-secondary">Back to List</a>
+        <a href="#" id="detailsBtn" class="btn btn-info">View Details</a>
+    </div>
+
+    <div id="loadingMessage" class="loading">
+        Loading venue...
+    </div>
+
+    <div id="formContainer" style="display: none;">
+        <div class="card">
+            <div class="card-body">
+                <form id="venueForm">
+                    <input type="hidden" id="venueId" />
+
+                    <div class="form-section">
+                        <h5 class="form-section-title">Basic Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Venue Name *</label>
+                                    <input type="text" class="form-control" id="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="state" class="form-label">State</label>
+                                    <input type="text" class="form-control" id="state">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="neighborhood" class="form-label">Neighborhood/Area</label>
+                                    <input type="text" class="form-control" id="neighborhood">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="venueType" class="form-label">Venue Type</label>
+                                    <select class="form-select" id="venueType">
+                                        <option value="0">Bar</option>
+                                        <option value="1">Honky Tonk</option>
+                                        <option value="2">Restaurant</option>
+                                        <option value="3">Brewery</option>
+                                        <option value="4">Private Event</option>
+                                        <option value="5">Festival</option>
+                                        <option value="6">Corporate</option>
+                                        <option value="7">Songwriter Round</option>
+                                        <option value="8">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h5 class="form-section-title">Contact Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bookingContactName" class="form-label">Contact Name</label>
+                                    <input type="text" class="form-control" id="bookingContactName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookingContactEmail" class="form-label">Contact Email</label>
+                                    <input type="email" class="form-control" id="bookingContactEmail">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookingContactPhone" class="form-label">Contact Phone</label>
+                                    <input type="tel" class="form-control" id="bookingContactPhone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="website" class="form-label">Website</label>
+                                    <input type="url" class="form-control" id="website">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="instagram" class="form-label">Instagram</label>
+                                    <input type="text" class="form-control" id="instagram">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h5 class="form-section-title">Venue Details</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="capacityRoomSize" class="form-label">Capacity/Room Size</label>
+                                    <input type="text" class="form-control" id="capacityRoomSize">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="musicFormatFit" class="form-label">Music Format Fit</label>
+                                    <input type="text" class="form-control" id="musicFormatFit">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="fitScore" class="form-label">Fit Score (1-5)</label>
+                                    <input type="number" class="form-control" id="fitScore" min="1" max="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h5 class="form-section-title">Status & Priority</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Priority</label>
+                                    <select class="form-select" id="priority">
+                                        <option value="0">Low</option>
+                                        <option value="1">Medium</option>
+                                        <option value="2">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="source" class="form-label">Source</label>
+                                    <select class="form-select" id="source">
+                                        <option value="0">User Research</option>
+                                        <option value="1">User Referral</option>
+                                        <option value="2">Venue Discovery</option>
+                                        <option value="3">Previous Gig</option>
+                                        <option value="4">Inbound</option>
+                                        <option value="5">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="researchConfidence" class="form-label">Research Confidence</label>
+                                    <select class="form-select" id="researchConfidence">
+                                        <option value="0">Low</option>
+                                        <option value="1">Medium</option>
+                                        <option value="2">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status">
+                                        <option value="0">Research Candidate</option>
+                                        <option value="1">Needs User Review</option>
+                                        <option value="2">Approved Target</option>
+                                        <option value="3">Draft Needed</option>
+                                        <option value="4">Ready to Send</option>
+                                        <option value="5">Contacted</option>
+                                        <option value="6">Follow-up Due</option>
+                                        <option value="7">In Conversation</option>
+                                        <option value="8">Booked</option>
+                                        <option value="9">Not Now</option>
+                                        <option value="10">Bad Fit</option>
+                                        <option value="11">Dead/No Response</option>
+                                        <option value="12">Existing Relationship</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h5 class="form-section-title">Notes</h5>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="notes" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="/Venues" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const venueId = @Model.Id;
+        let currentVenue = null;
+
+        async function loadVenue() {
+            try {
+                const response = await fetch(`/api/venues/${venueId}`);
+                if (!response.ok) {
+                    document.getElementById('loadingMessage').innerHTML = '<div class="alert alert-danger">Venue not found.</div>';
+                    return;
+                }
+
+                currentVenue = await response.json();
+                document.getElementById('detailsBtn').href = `/Venues/Details/${venueId}`;
+
+                // Populate form
+                document.getElementById('venueId').value = currentVenue.id;
+                document.getElementById('name').value = currentVenue.name || '';
+                document.getElementById('city').value = currentVenue.city || '';
+                document.getElementById('state').value = currentVenue.state || '';
+                document.getElementById('neighborhood').value = currentVenue.neighborhood || '';
+                document.getElementById('venueType').value = currentVenue.venueType;
+                document.getElementById('bookingContactName').value = currentVenue.bookingContactName || '';
+                document.getElementById('bookingContactEmail').value = currentVenue.bookingContactEmail || '';
+                document.getElementById('bookingContactPhone').value = currentVenue.bookingContactPhone || '';
+                document.getElementById('website').value = currentVenue.website || '';
+                document.getElementById('instagram').value = currentVenue.instagram || '';
+                document.getElementById('capacityRoomSize').value = currentVenue.capacityRoomSize || '';
+                document.getElementById('musicFormatFit').value = currentVenue.musicFormatFit || '';
+                document.getElementById('fitScore').value = currentVenue.fitScore || '';
+                document.getElementById('priority').value = currentVenue.priority;
+                document.getElementById('source').value = currentVenue.source;
+                document.getElementById('researchConfidence').value = currentVenue.researchConfidence;
+                document.getElementById('status').value = currentVenue.status;
+                document.getElementById('notes').value = currentVenue.notes || '';
+
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('formContainer').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingMessage').innerHTML = '<div class="alert alert-danger">Error loading venue.</div>';
+            }
+        }
+
+        document.getElementById('venueForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const updatedVenue = {
+                ...currentVenue,
+                name: document.getElementById('name').value,
+                city: document.getElementById('city').value || null,
+                state: document.getElementById('state').value || null,
+                neighborhood: document.getElementById('neighborhood').value || null,
+                venueType: parseInt(document.getElementById('venueType').value),
+                bookingContactName: document.getElementById('bookingContactName').value || null,
+                bookingContactEmail: document.getElementById('bookingContactEmail').value || null,
+                bookingContactPhone: document.getElementById('bookingContactPhone').value || null,
+                website: document.getElementById('website').value || null,
+                instagram: document.getElementById('instagram').value || null,
+                capacityRoomSize: document.getElementById('capacityRoomSize').value || null,
+                musicFormatFit: document.getElementById('musicFormatFit').value || null,
+                fitScore: document.getElementById('fitScore').value ? parseInt(document.getElementById('fitScore').value) : null,
+                priority: parseInt(document.getElementById('priority').value),
+                source: parseInt(document.getElementById('source').value),
+                researchConfidence: parseInt(document.getElementById('researchConfidence').value),
+                status: parseInt(document.getElementById('status').value),
+                notes: document.getElementById('notes').value || null,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(`/api/venues/${venueId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedVenue)
+                });
+
+                if (response.ok) {
+                    alert('Venue updated successfully!');
+                    window.location.href = '/Venues';
+                } else {
+                    const error = await response.text();
+                    alert('Error updating venue: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating venue');
+            }
+        });
+
+        loadVenue();
+    </script>
+}

@@ -1,0 +1,33 @@
+=== Booking Tracker Page Link Test ===
+Test Date: Sun, Jun 14, 2026  4:32:21 PM
+
+
+=== Main Pages ===
+✓ PASS: Dashboard - http://localhost:5000/ (HTTP 200)
+✓ PASS: Venues List - http://localhost:5000/Venues (HTTP 200)
+✓ PASS: Register - http://localhost:5000/Identity/Account/Register (HTTP 200)
+✓ PASS: Login - http://localhost:5000/Identity/Account/Login (HTTP 200)
+✓ PASS: Privacy - http://localhost:5000/Privacy (HTTP 200)
+
+=== Discovered Links ===
+  - 
+
+=== Link Test Results ===
+✓ PASS: Link:  - http://localhost:5000/ (HTTP 200)
+
+=== Feature Tests ===
+✓ PASS: Venues Create Page - http://localhost:5000/Venues/Create (HTTP 200)
+✓ PASS: Venues Details Page - http://localhost:5000/Venues/Details/1 (HTTP 200)
+✓ PASS: Venues Edit Page - http://localhost:5000/Venues/Edit/1 (HTTP 200)
+✗ FAIL: Venues Delete Page - http://localhost:5000/Venues/Delete/1 (HTTP 404)
+✓ PASS: Outreach List Page - http://localhost:5000/Outreach (HTTP 200)
+✗ FAIL: Outreach Create Page - http://localhost:5000/Outreach/Create (HTTP 404)
+✓ PASS: Curation Workflow Page - http://localhost:5000/Venues/Curation (HTTP 200)
+✓ PASS: Logout Page - http://localhost:5000/Identity/Account/Logout (HTTP 200)
+→ REDIRECT: Manage Account - http://localhost:5000/Identity/Account/Manage (HTTP 302)
+✓ PASS: Forgot Password - http://localhost:5000/Identity/Account/ForgotPassword (HTTP 200)
+=== Test Summary ===
+Total Passed: 8
+Total Failed: 2
+
+[0;31mSome pages failed. See page_test_results.txt for details.[0m
