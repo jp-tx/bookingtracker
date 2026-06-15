@@ -171,9 +171,10 @@
                                         <option value="7">In Conversation</option>
                                         <option value="8">Booked</option>
                                         <option value="9">Not Now</option>
-                                        <option value="10">Bad Fit</option>
-                                        <option value="11">Dead/No Response</option>
-                                        <option value="12">Existing Relationship</option>
+                                        <option value="10">Marked for Future Contact</option>
+                                        <option value="11">Bad Fit</option>
+                                        <option value="12">Dead/No Response</option>
+                                        <option value="13">Existing Relationship</option>
                                     </select>
                                 </div>
                             </div>
@@ -197,10 +198,33 @@
     </div>
 </div>
 
+<!-- Modal for Future Contact Reason -->
+<div class="modal fade" id="futureContactModal" tabindex="-1" aria-labelledby="futureContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="futureContactModalLabel">Reason for Future Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Please provide a reason why this venue is marked for future contact:</p>
+                <textarea class="form-control" id="futureContactReason" rows="4" placeholder="e.g., Not booking until Fall 2027, waiting for venue to open, need to build more repertoire first..."></textarea>
+                <div id="reasonError" class="text-danger mt-2" style="display: none;">Please enter a reason before continuing.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmFutureContact">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         const venueId = @Model.Id;
         let currentVenue = null;
+        let previousStatus = null;
+        let futureContactReasonAdded = false;
 
         async function loadVenue() {
             try {
@@ -234,14 +258,73 @@
                 document.getElementById('status').value = currentVenue.status;
                 document.getElementById('notes').value = currentVenue.notes || '';
 
+                previousStatus = currentVenue.status;
+
                 document.getElementById('loadingMessage').style.display = 'none';
                 document.getElementById('formContainer').style.display = 'block';
+
+                // Add status change listener
+                document.getElementById('status').addEventListener('change', handleStatusChange);
 
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loadingMessage').innerHTML = '<div class="alert alert-danger">Error loading venue.</div>';
             }
         }
+
+        function handleStatusChange(e) {
+            const newStatus = parseInt(e.target.value);
+
+            // If changing to "Marked for Future Contact" (status 10)
+            if (newStatus === 10 && previousStatus !== 10) {
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('futureContactModal'));
+                modal.show();
+
+                // Reset the reason field and error
+                document.getElementById('futureContactReason').value = '';
+                document.getElementById('reasonError').style.display = 'none';
+            } else {
+                previousStatus = newStatus;
+            }
+        }
+
+        // Handle modal confirmation
+        document.getElementById('confirmFutureContact').addEventListener('click', function() {
+            const reason = document.getElementById('futureContactReason').value.trim();
+
+            if (!reason) {
+                document.getElementById('reasonError').style.display = 'block';
+                return;
+            }
+
+            // Append reason to notes with timestamp
+            const notesField = document.getElementById('notes');
+            const timestamp = new Date().toLocaleString();
+            const newNote = `[${timestamp}] Marked for Future Contact: ${reason}`;
+
+            if (notesField.value.trim()) {
+                notesField.value = notesField.value + '\n\n' + newNote;
+            } else {
+                notesField.value = newNote;
+            }
+
+            futureContactReasonAdded = true;
+            previousStatus = 10;
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('futureContactModal'));
+            modal.hide();
+        });
+
+        // Handle modal cancel
+        document.getElementById('futureContactModal').addEventListener('hidden.bs.modal', function() {
+            // If they closed the modal without confirming, revert status
+            if (parseInt(document.getElementById('status').value) === 10 && !futureContactReasonAdded) {
+                document.getElementById('status').value = previousStatus;
+            }
+            futureContactReasonAdded = false;
+        });
 
         document.getElementById('venueForm').addEventListener('submit', async (e) => {
             e.preventDefault();
