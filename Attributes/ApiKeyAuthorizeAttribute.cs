@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using BookingTracker.Middleware;
 
 namespace BookingTracker.Attributes;
@@ -8,6 +9,7 @@ public class ApiKeyAuthorizeAttribute : AuthorizeAttribute
 {
     public ApiKeyAuthorizeAttribute()
     {
-        AuthenticationSchemes = ApiKeyAuthenticationOptions.DefaultScheme;
+        // Accept both cookie authentication (Identity.Application) and API key authentication
+        AuthenticationSchemes = $"{IdentityConstants.ApplicationScheme},{ApiKeyAuthenticationOptions.DefaultScheme}";
     }
 }

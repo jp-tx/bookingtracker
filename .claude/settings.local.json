@@ -29,7 +29,8 @@
       "Bash(docker-compose:*)",
       "Bash(powershell -Command \"Get-Process | Where-Object {$_Modules.FileName -like ''*bookingtracker.db*''} | Select-Object Id, ProcessName\")",
       "Bash(powershell:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(TOKEN=\"CfDJ8B7HkiuV5mJHi4p2H3PSpCP5I0pS1G2xb9QEHACm60qPkPQrcYnDH6vH4iPpfefpFBVErpain6U8j5-V21W2qkgt0lcpyo7ZfwZn5vWSbxFRtSlcxJP4MdUyXGDKliVWne_DqDjEXiWPrYA1A6V5aic\")"
     ]
   }
 }

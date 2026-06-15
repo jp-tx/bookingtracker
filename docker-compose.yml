@@ -9,7 +9,7 @@ services:
     ports:
       - "5000:8080"
     volumes:
-      - ./data:/data
+      - ./data_new:/data
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
