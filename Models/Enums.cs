@@ -49,6 +49,7 @@ public enum VenueStatus
     InConversation,
     Booked,
     NotNow,
+    MarkedForFutureContact,
     BadFit,
     DeadNoResponse,
     ExistingRelationship
