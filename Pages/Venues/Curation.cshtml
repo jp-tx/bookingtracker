@@ -33,6 +33,27 @@
     </div>
 </div>
 
+<!-- Modal for Future Contact Reason -->
+<div class="modal fade" id="futureContactModal" tabindex="-1" aria-labelledby="futureContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="futureContactModalLabel">Reason for Future Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Please provide a reason why this venue is marked for future contact:</p>
+                <textarea class="form-control" id="futureContactReason" rows="4" placeholder="e.g., Not booking until Fall 2027, waiting for venue to open, need to build more repertoire first..."></textarea>
+                <div id="reasonError" class="text-danger mt-2" style="display: none;">Please enter a reason before continuing.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmFutureContact">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         async function loadVenuesForReview() {
@@ -84,6 +105,7 @@
                     html += '<div class="card-footer bg-transparent">';
                     html += '<div class="d-grid gap-2">';
                     html += `<button class="btn btn-success" onclick="approveVenue(${venue.id})">Approve for Outreach</button>`;
+                    html += `<button class="btn btn-warning" onclick="markForFutureContact(${venue.id})">Mark for Future Contact</button>`;
                     html += `<button class="btn btn-danger" onclick="rejectVenue(${venue.id})">Mark as Bad Fit</button>`;
                     html += `<a href="/Venues/Details/${venue.id}" class="btn btn-sm btn-outline-info">View Full Details</a>`;
                     html += '</div>';
@@ -150,7 +172,7 @@
                 const venueResponse = await fetch(`/api/venues/${id}`);
                 const venue = await venueResponse.json();
 
-                venue.status = 10; // BadFit
+                venue.status = 11; // BadFit
                 venue.updatedAt = new Date().toISOString();
 
                 const response = await fetch(`/api/venues/${id}`, {
@@ -170,6 +192,67 @@
                 alert('Error rejecting venue');
             }
         }
+
+        let currentVenueId = null;
+
+        function markForFutureContact(id) {
+            currentVenueId = id;
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('futureContactModal'));
+            modal.show();
+
+            // Reset the reason field and error
+            document.getElementById('futureContactReason').value = '';
+            document.getElementById('reasonError').style.display = 'none';
+        }
+
+        // Handle modal confirmation
+        document.getElementById('confirmFutureContact').addEventListener('click', async function() {
+            const reason = document.getElementById('futureContactReason').value.trim();
+
+            if (!reason) {
+                document.getElementById('reasonError').style.display = 'block';
+                return;
+            }
+
+            try {
+                const venueResponse = await fetch(`/api/venues/${currentVenueId}`);
+                const venue = await venueResponse.json();
+
+                // Append reason to notes with timestamp
+                const timestamp = new Date().toLocaleString();
+                const newNote = `[${timestamp}] Marked for Future Contact: ${reason}`;
+
+                if (venue.notes && venue.notes.trim()) {
+                    venue.notes = venue.notes + '\n\n' + newNote;
+                } else {
+                    venue.notes = newNote;
+                }
+
+                venue.status = 10; // MarkedForFutureContact
+                venue.updatedAt = new Date().toISOString();
+
+                const response = await fetch(`/api/venues/${currentVenueId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('futureContactModal'));
+                    modal.hide();
+
+                    alert('Venue marked for future contact');
+                    loadVenuesForReview();
+                } else {
+                    alert('Error updating venue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating venue');
+            }
+        });
 
         loadVenuesForReview();
     </script>

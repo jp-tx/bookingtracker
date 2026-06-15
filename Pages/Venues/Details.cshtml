@@ -15,6 +15,22 @@
         <a href="#" id="editBtn" class="btn btn-warning">Edit Venue</a>
     </div>
 
+    <!-- Curation Actions -->
+    <div class="mb-4" id="curationActions" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Curation Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-success" id="approveBtn">Approve for Outreach</button>
+                    <button class="btn btn-warning" id="futureContactBtn">Mark for Future Contact</button>
+                    <button class="btn btn-danger" id="badFitBtn">Mark as Bad Fit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="venueDetails" class="loading">
         Loading venue details...
     </div>
@@ -104,6 +120,27 @@
                 <div id="outreachHistory" class="loading">
                     Loading outreach history...
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Future Contact Reason -->
+<div class="modal fade" id="futureContactModal" tabindex="-1" aria-labelledby="futureContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="futureContactModalLabel">Reason for Future Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Please provide a reason why this venue is marked for future contact:</p>
+                <textarea class="form-control" id="futureContactReason" rows="4" placeholder="e.g., Not booking until Fall 2027, waiting for venue to open, need to build more repertoire first..."></textarea>
+                <div id="reasonError" class="text-danger mt-2" style="display: none;">Please enter a reason before continuing.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmFutureContact">Confirm</button>
             </div>
         </div>
     </div>
@@ -243,6 +280,11 @@
                     document.getElementById('outreachHistory').innerHTML = '<div class="empty-state"><p class="text-muted">No outreach history yet.</p></div>';
                 }
 
+                // Show curation actions if venue needs review
+                if (venue.status === 0 || venue.status === 1) {
+                    document.getElementById('curationActions').style.display = 'block';
+                }
+
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('venueDetails').innerHTML = '<div class="alert alert-danger">Error loading venue details.</div>';
@@ -256,7 +298,7 @@
 
         function getStatusName(status) {
             const statuses = ['Research Candidate', 'Needs User Review', 'Approved Target', 'Draft Needed', 'Ready to Send',
-                            'Contacted', 'Follow-up Due', 'In Conversation', 'Booked', 'Not Now', 'Bad Fit', 'Dead/No Response', 'Existing Relationship'];
+                            'Contacted', 'Follow-up Due', 'In Conversation', 'Booked', 'Not Now', 'Marked for Future Contact', 'Bad Fit', 'Dead/No Response', 'Existing Relationship'];
             return statuses[status] || 'Unknown';
         }
 
@@ -337,6 +379,121 @@
 
         // Set default date/time to now
         document.getElementById('outreachDate').value = new Date().toISOString().slice(0, 16);
+
+        // Curation action handlers
+        document.getElementById('approveBtn').addEventListener('click', async function() {
+            if (!confirm('Approve this venue for outreach?')) return;
+
+            try {
+                const venueResponse = await fetch(`/api/venues/${venueId}`);
+                const venue = await venueResponse.json();
+
+                venue.status = 2; // ApprovedTarget
+                venue.updatedAt = new Date().toISOString();
+
+                const response = await fetch(`/api/venues/${venueId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    alert('Venue approved!');
+                    loadVenueDetails();
+                } else {
+                    alert('Error approving venue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error approving venue');
+            }
+        });
+
+        document.getElementById('futureContactBtn').addEventListener('click', function() {
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('futureContactModal'));
+            modal.show();
+
+            // Reset the reason field and error
+            document.getElementById('futureContactReason').value = '';
+            document.getElementById('reasonError').style.display = 'none';
+        });
+
+        document.getElementById('badFitBtn').addEventListener('click', async function() {
+            if (!confirm('Mark this venue as bad fit?')) return;
+
+            try {
+                const venueResponse = await fetch(`/api/venues/${venueId}`);
+                const venue = await venueResponse.json();
+
+                venue.status = 11; // BadFit
+                venue.updatedAt = new Date().toISOString();
+
+                const response = await fetch(`/api/venues/${venueId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    alert('Venue marked as bad fit');
+                    loadVenueDetails();
+                } else {
+                    alert('Error updating venue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating venue');
+            }
+        });
+
+        // Handle future contact modal confirmation
+        document.getElementById('confirmFutureContact').addEventListener('click', async function() {
+            const reason = document.getElementById('futureContactReason').value.trim();
+
+            if (!reason) {
+                document.getElementById('reasonError').style.display = 'block';
+                return;
+            }
+
+            try {
+                const venueResponse = await fetch(`/api/venues/${venueId}`);
+                const venue = await venueResponse.json();
+
+                // Append reason to notes with timestamp
+                const timestamp = new Date().toLocaleString();
+                const newNote = `[${timestamp}] Marked for Future Contact: ${reason}`;
+
+                if (venue.notes && venue.notes.trim()) {
+                    venue.notes = venue.notes + '\n\n' + newNote;
+                } else {
+                    venue.notes = newNote;
+                }
+
+                venue.status = 10; // MarkedForFutureContact
+                venue.updatedAt = new Date().toISOString();
+
+                const response = await fetch(`/api/venues/${venueId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venue)
+                });
+
+                if (response.ok) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('futureContactModal'));
+                    modal.hide();
+
+                    alert('Venue marked for future contact');
+                    loadVenueDetails();
+                } else {
+                    alert('Error updating venue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating venue');
+            }
+        });
 
         loadVenueDetails();
     </script>
