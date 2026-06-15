@@ -47,15 +47,18 @@ public class ViewsController : ControllerBase
     [HttpGet("followups-due-this-week")]
     public async Task<ActionResult<IEnumerable<Venue>>> GetFollowupsDueThisWeek()
     {
-        var startOfWeek = DateTime.UtcNow.Date;
-        var endOfWeek = startOfWeek.AddDays(7);
+        var today = DateTime.UtcNow.Date;
+        var endOfWeek = today.AddDays(7);
 
         return await _context.Venues
             .Include(v => v.OutreachLogs)
-            .Where(v => v.Status == VenueStatus.FollowUpDue &&
-                       v.NextFollowUpDate.HasValue &&
-                       v.NextFollowUpDate.Value >= startOfWeek &&
-                       v.NextFollowUpDate.Value <= endOfWeek)
+            .Where(v => v.NextFollowUpDate.HasValue &&
+                       v.NextFollowUpDate.Value.Date >= today &&
+                       v.NextFollowUpDate.Value.Date <= endOfWeek &&
+                       v.Status != VenueStatus.Booked &&
+                       v.Status != VenueStatus.BadFit &&
+                       v.Status != VenueStatus.NotNow &&
+                       v.Status != VenueStatus.DeadNoResponse)
             .OrderBy(v => v.NextFollowUpDate)
             .ToListAsync();
     }

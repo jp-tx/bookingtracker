@@ -106,7 +106,7 @@
                 <div class="collapse" id="apiDocs">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <h6>Venue Endpoints</h6>
                                 <ul class="small">
                                     <li>GET /api/venues</li>
@@ -116,7 +116,17 @@
                                     <li>DELETE /api/venues/{id}</li>
                                 </ul>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <h6>Outreach Endpoints</h6>
+                                <ul class="small">
+                                    <li>GET /api/outreach</li>
+                                    <li>GET /api/outreach/{id}</li>
+                                    <li>POST /api/outreach</li>
+                                    <li>PUT /api/outreach/{id}</li>
+                                    <li>DELETE /api/outreach/{id}</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
                                 <h6>View Endpoints</h6>
                                 <ul class="small">
                                     <li>GET /api/views/new-venues-needing-review</li>
@@ -126,12 +136,13 @@
                                     <li>GET /api/views/booked-venues</li>
                                 </ul>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <h6>Reminder Endpoints</h6>
                                 <ul class="small">
                                     <li>GET /api/reminders/due</li>
                                     <li>GET /api/reminders/overdue</li>
                                 </ul>
+                                <p class="small text-muted mt-3"><strong>Note:</strong> All write endpoints (POST/PUT) expect PascalCase JSON payloads directly (not wrapped). Requires <code>X-API-Key</code> header.</p>
                             </div>
                         </div>
                     </div>
