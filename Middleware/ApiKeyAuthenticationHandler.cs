@@ -30,6 +30,12 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        // If user is already authenticated via cookies (browser session), allow it
+        if (Context.User?.Identity?.IsAuthenticated == true)
+        {
+            return AuthenticateResult.NoResult(); // Let the existing authentication continue
+        }
+
         // Check if the request has the API key header
         if (!Request.Headers.TryGetValue(Options.ApiKeyHeaderName, out var apiKeyHeaderValues))
         {

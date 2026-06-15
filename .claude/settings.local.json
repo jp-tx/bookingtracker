@@ -25,7 +25,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(cmd //c 'del /F \\\\\\\\.\\\\C:\\\\Users\\\\jb.JP-TX\\\\bookingtracker\\\\NUL')",
-      "Bash(powershell -Command \"Remove-Item -Path ''\\\\?\\\\C:\\\\Users\\\\jb.JP-TX\\\\bookingtracker\\\\NUL'' -Force\")"
+      "Bash(powershell -Command \"Remove-Item -Path ''\\\\?\\\\C:\\\\Users\\\\jb.JP-TX\\\\bookingtracker\\\\NUL'' -Force\")",
+      "Bash(docker-compose:*)",
+      "Bash(powershell -Command \"Get-Process | Where-Object {$_Modules.FileName -like ''*bookingtracker.db*''} | Select-Object Id, ProcessName\")",
+      "Bash(powershell:*)",
+      "Bash(docker exec:*)"
     ]
   }
 }
